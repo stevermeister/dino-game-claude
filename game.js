@@ -8,6 +8,10 @@ let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem('dinoHighScore') || 0;
 let animationId;
+let startTime = 0;
+let elapsedTime = 0;
+let level = 1;
+let previousLevel = 1;
 
 // Game speed
 let gameSpeed = 5;
@@ -36,10 +40,29 @@ const ground = {
     height: 20
 };
 
+// Format time as MM:SS
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Trigger pulse animation on an element
+function triggerPulse(elementId) {
+    const element = document.getElementById(elementId);
+    element.classList.remove('pulse');
+    // Force reflow to restart animation
+    void element.offsetWidth;
+    element.classList.add('pulse');
+}
+
 // Update score display
 function updateScoreDisplay() {
-    document.getElementById('score').textContent = `Score: ${Math.floor(score)}`;
-    document.getElementById('high-score').textContent = `High Score: ${Math.floor(highScore)}`;
+    document.getElementById('score').textContent = Math.floor(score);
+    document.getElementById('high-score').textContent = Math.floor(highScore);
+    document.getElementById('level').textContent = level;
+    document.getElementById('speed').textContent = `${gameSpeed.toFixed(1)}x`;
+    document.getElementById('time').textContent = formatTime(elapsedTime);
 }
 
 // Draw dino
@@ -118,10 +141,14 @@ function updateObstacles() {
             obstacles.splice(index, 1);
             score += 10;
 
+            // Pulse animation for score
+            triggerPulse('score-box');
+
             // Update high score
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('dinoHighScore', highScore);
+                triggerPulse('high-score-box');
             }
         }
     });
@@ -171,6 +198,10 @@ function startGame() {
     obstacleTimer = 0;
     gameSpeed = 5;
     speedIncrement = 0;
+    level = 1;
+    previousLevel = 1;
+    startTime = Date.now();
+    elapsedTime = 0;
     dino.y = ground.y - dino.height;
     dino.dy = 0;
     dino.isJumping = false;
@@ -207,9 +238,19 @@ function gameLoop() {
     updateDino();
     updateObstacles();
 
+    // Update elapsed time
+    elapsedTime = (Date.now() - startTime) / 1000;
+
     // Increase difficulty
     speedIncrement = Math.floor(score / 100);
     gameSpeed = 5 + speedIncrement * 0.5;
+    level = Math.floor(speedIncrement) + 1;
+
+    // Check for level up
+    if (level > previousLevel) {
+        previousLevel = level;
+        triggerPulse('level');
+    }
 
     // Update score
     score += 0.1;
