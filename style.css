@@ -1,0 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.game-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.score-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+#score, #high-score {
+    padding: 10px 15px;
+    background: #f0f0f0;
+    border-radius: 8px;
+}
+
+#gameCanvas {
+    border: 3px solid #333;
+    border-radius: 8px;
+    display: block;
+    background: #f7f7f7;
+}
+
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 10;
+}
+
+.game-over h2 {
+    color: #e74c3c;
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+.game-over p {
+    font-size: 20px;
+    margin: 10px 0;
+    color: #333;
+}
+
+.game-over span {
+    color: #667eea;
+    font-weight: bold;
+}
+
+#restart-btn {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#restart-btn:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+}
+
+.start-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 10;
+}
+
+.start-screen h1 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 36px;
+}
+
+.start-screen p {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #333;
+}
+
+.hidden {
+    display: none;
+}
