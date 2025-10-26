@@ -165,10 +165,19 @@ export class GameEngine {
         // Increment score
         this.scoreSystem.incrementScore();
 
-        // Check collision
+        // Check collision with obstacles
         if (CollisionSystem.checkDinoObstacleCollision(
             this.dino,
             this.obstacleSystem.getObstacles()
+        )) {
+            this.end();
+            return;
+        }
+
+        // Check collision with birds
+        if (CollisionSystem.checkDinoObstacleCollision(
+            this.dino,
+            this.obstacleSystem.getBirds()
         )) {
             this.end();
             return;
@@ -182,6 +191,7 @@ export class GameEngine {
             dino: this.dino,
             ground: this.ground,
             obstacles: this.obstacleSystem.getObstacles(),
+            birds: this.obstacleSystem.getBirds(),
             score: this.scoreSystem.score
         });
 

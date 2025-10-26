@@ -3,6 +3,7 @@
  */
 import { DinoRenderer } from './DinoRenderer.js';
 import { ObstacleRenderer } from './ObstacleRenderer.js';
+import { BirdRenderer } from './BirdRenderer.js';
 import { GroundRenderer } from './GroundRenderer.js';
 
 export class Renderer {
@@ -32,5 +33,6 @@ export class Renderer {
         GroundRenderer.render(this.ctx, gameState.ground, gameState.score);
         DinoRenderer.render(this.ctx, gameState.dino, gameState.score);
         ObstacleRenderer.render(this.ctx, gameState.obstacles);
+        BirdRenderer.renderAll(this.ctx, gameState.birds || []);
     }
 }

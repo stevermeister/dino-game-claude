@@ -2,11 +2,13 @@
  * Obstacle management system
  */
 import { Obstacle } from '../entities/Obstacle.js';
+import Bird from '../entities/Bird.js';
 import { OBSTACLE_CONFIG } from '../config/gameConfig.js';
 
 export class ObstacleSystem {
     constructor() {
         this.obstacles = [];
+        this.birds = [];
         this.timer = 0;
         this.spawnInterval = OBSTACLE_CONFIG.INITIAL_INTERVAL;
     }
@@ -16,6 +18,7 @@ export class ObstacleSystem {
      */
     reset() {
         this.obstacles = [];
+        this.birds = [];
         this.timer = 0;
         this.spawnInterval = OBSTACLE_CONFIG.INITIAL_INTERVAL;
     }
@@ -30,9 +33,14 @@ export class ObstacleSystem {
         let pointsEarned = 0;
         this.timer++;
 
-        // Spawn new obstacle
+        // Spawn new obstacle or bird
         if (this.timer > this.spawnInterval) {
-            this.obstacles.push(new Obstacle());
+            // 35% chance to spawn a bird instead of ground obstacle
+            if (Math.random() < 0.35) {
+                this.birds.push(new Bird());
+            } else {
+                this.obstacles.push(new Obstacle());
+            }
             this.timer = 0;
             this.spawnInterval = Math.max(
                 OBSTACLE_CONFIG.MIN_INTERVAL,
@@ -52,6 +60,18 @@ export class ObstacleSystem {
             }
         }
 
+        // Update existing birds
+        for (let i = this.birds.length - 1; i >= 0; i--) {
+            const bird = this.birds[i];
+            bird.update(speed);
+
+            // Remove off-screen birds
+            if (bird.isOffScreen()) {
+                this.birds.splice(i, 1);
+                pointsEarned++;
+            }
+        }
+
         return pointsEarned;
     }
 
@@ -61,5 +81,13 @@ export class ObstacleSystem {
      */
     getObstacles() {
         return this.obstacles;
+    }
+
+    /**
+     * Get all birds
+     * @returns {Bird[]}
+     */
+    getBirds() {
+        return this.birds;
     }
 }
