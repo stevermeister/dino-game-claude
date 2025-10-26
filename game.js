@@ -2,6 +2,135 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Sound System
+class SoundManager {
+    constructor() {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.muted = localStorage.getItem('soundMuted') === 'true';
+        this.bgMusicGain = null;
+        this.bgMusicOscillator = null;
+    }
+
+    playSound(frequency, duration, type = 'sine', volume = 0.3) {
+        if (this.muted) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+
+        oscillator.frequency.value = frequency;
+        oscillator.type = type;
+        gainNode.gain.value = volume;
+
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + duration);
+
+        // Fade out
+        gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            this.audioContext.currentTime + duration
+        );
+    }
+
+    playJump() {
+        if (this.muted) return;
+        // Quick upward sweep
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.1);
+
+        gainNode.gain.value = 0.2;
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.1);
+    }
+
+    playScore() {
+        if (this.muted) return;
+        // Pleasant ding sound
+        this.playSound(800, 0.1, 'sine', 0.15);
+    }
+
+    playLevelUp() {
+        if (this.muted) return;
+        // Triumphant ascending tones
+        setTimeout(() => this.playSound(523, 0.1, 'sine', 0.2), 0);
+        setTimeout(() => this.playSound(659, 0.1, 'sine', 0.2), 100);
+        setTimeout(() => this.playSound(784, 0.2, 'sine', 0.2), 200);
+    }
+
+    playGameOver() {
+        if (this.muted) return;
+        // Descending sad tones
+        setTimeout(() => this.playSound(400, 0.15, 'sawtooth', 0.3), 0);
+        setTimeout(() => this.playSound(300, 0.15, 'sawtooth', 0.3), 150);
+        setTimeout(() => this.playSound(200, 0.3, 'sawtooth', 0.3), 300);
+    }
+
+    startBackgroundMusic() {
+        if (this.muted || this.bgMusicOscillator) return;
+
+        // Simple melody loop
+        const melody = [523, 587, 659, 587]; // C, D, E, D
+        let noteIndex = 0;
+
+        this.bgMusicGain = this.audioContext.createGain();
+        this.bgMusicGain.connect(this.audioContext.destination);
+        this.bgMusicGain.gain.value = 0.05; // Very quiet background
+
+        const playNote = () => {
+            if (this.muted || !this.bgMusicGain) return;
+
+            const oscillator = this.audioContext.createOscillator();
+            oscillator.connect(this.bgMusicGain);
+            oscillator.type = 'triangle';
+            oscillator.frequency.value = melody[noteIndex];
+
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + 0.3);
+
+            noteIndex = (noteIndex + 1) % melody.length;
+
+            if (!this.muted) {
+                setTimeout(playNote, 500);
+            }
+        };
+
+        playNote();
+    }
+
+    stopBackgroundMusic() {
+        if (this.bgMusicGain) {
+            this.bgMusicGain.disconnect();
+            this.bgMusicGain = null;
+        }
+    }
+
+    toggleMute() {
+        this.muted = !this.muted;
+        localStorage.setItem('soundMuted', this.muted);
+
+        if (this.muted) {
+            this.stopBackgroundMusic();
+        } else if (gameStarted && !gameOver) {
+            this.startBackgroundMusic();
+        }
+
+        return this.muted;
+    }
+}
+
+const soundManager = new SoundManager();
+
 // Game variables
 let gameStarted = false;
 let gameOver = false;
@@ -141,6 +270,9 @@ function updateObstacles() {
             obstacles.splice(index, 1);
             score += 10;
 
+            // Play score sound
+            soundManager.playScore();
+
             // Pulse animation for score
             triggerPulse('score-box');
 
@@ -186,6 +318,7 @@ function jump() {
     if (!dino.isJumping && dino.y >= ground.y - dino.height) {
         dino.dy = dino.jumpPower;
         dino.isJumping = true;
+        soundManager.playJump();
     }
 }
 
@@ -209,6 +342,8 @@ function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('game-over').classList.add('hidden');
 
+    soundManager.startBackgroundMusic();
+
     gameLoop();
 }
 
@@ -216,6 +351,9 @@ function startGame() {
 function endGame() {
     gameOver = true;
     gameStarted = false;
+
+    soundManager.stopBackgroundMusic();
+    soundManager.playGameOver();
 
     document.getElementById('final-score').textContent = Math.floor(score);
     document.getElementById('final-high-score').textContent = Math.floor(highScore);
@@ -249,6 +387,7 @@ function gameLoop() {
     // Check for level up
     if (level > previousLevel) {
         previousLevel = level;
+        soundManager.playLevelUp();
         triggerPulse('level');
     }
 
@@ -294,5 +433,13 @@ document.getElementById('restart-btn').addEventListener('click', () => {
     startGame();
 });
 
+document.getElementById('mute-btn').addEventListener('click', () => {
+    const isMuted = soundManager.toggleMute();
+    document.getElementById('mute-btn').textContent = isMuted ? '🔇' : '🔊';
+});
+
 // Initialize display
 updateScoreDisplay();
+
+// Initialize mute button state
+document.getElementById('mute-btn').textContent = soundManager.muted ? '🔇' : '🔊';
