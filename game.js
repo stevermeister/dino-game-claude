@@ -276,15 +276,8 @@ function updateObstacles() {
             // Pulse animation for score
             triggerPulse('score-box');
 
-            // Update high score
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('dinoHighScore', highScore);
-                triggerPulse('high-score-box');
-            }
-        }
-    });
-}
+import { GameEngine } from './src/core/GameEngine.js';
+import { InputHandler } from './src/core/InputHandler.js';
 
 // Check collision
 function checkCollision() {
@@ -419,19 +412,11 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-canvas.addEventListener('click', () => {
-    if (!gameStarted && !gameOver) {
-        startGame();
-    } else if (gameOver) {
-        startGame();
-    } else {
-        jump();
-    }
-});
+// Initialize game engine
+const game = new GameEngine(canvas);
 
-document.getElementById('restart-btn').addEventListener('click', () => {
-    startGame();
-});
+// Setup input handlers
+InputHandler.setup(game, canvas);
 
 document.getElementById('mute-btn').addEventListener('click', () => {
     const isMuted = soundManager.toggleMute();
