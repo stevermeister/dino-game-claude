@@ -9,11 +9,22 @@ export class InputHandler {
      * @param {HTMLCanvasElement} canvas - Game canvas
      */
     static setup(gameEngine, canvas) {
-        // Keyboard input
+        // Keyboard input - keydown
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
                 e.preventDefault();
                 gameEngine.jump();
+            } else if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                gameEngine.duck();
+            }
+        });
+
+        // Keyboard input - keyup (to unduck when key is released)
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                gameEngine.unduck();
             }
         });
 
