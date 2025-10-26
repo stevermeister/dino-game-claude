@@ -119,6 +119,24 @@ export class GameEngine {
     }
 
     /**
+     * Handle duck action
+     */
+    duck() {
+        if (this.gameStarted && !this.gameOver) {
+            this.dino.duck();
+        }
+    }
+
+    /**
+     * Handle unduck action
+     */
+    unduck() {
+        if (this.gameStarted && !this.gameOver) {
+            this.dino.unduck();
+        }
+    }
+
+    /**
      * Update game display
      */
     updateDisplay() {
