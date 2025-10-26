@@ -7,6 +7,7 @@ import { CollisionSystem } from '../systems/CollisionSystem.js';
 import { ScoreSystem } from '../systems/ScoreSystem.js';
 import { LevelSystem } from '../systems/LevelSystem.js';
 import { ObstacleSystem } from '../systems/ObstacleSystem.js';
+import { SoundManager } from '../systems/SoundManager.js';
 import { Renderer } from '../rendering/Renderer.js';
 import { ScoreDisplay } from '../ui/ScoreDisplay.js';
 import { GameOverScreen } from '../ui/GameOverScreen.js';
@@ -37,11 +38,15 @@ export class GameEngine {
         this.scoreSystem = new ScoreSystem();
         this.levelSystem = new LevelSystem();
         this.obstacleSystem = new ObstacleSystem();
+        this.soundManager = new SoundManager();
 
         // UI
         this.scoreDisplay = new ScoreDisplay();
         this.gameOverScreen = new GameOverScreen();
         this.startScreen = new StartScreen();
+
+        // Track previous level for level up detection
+        this.previousLevel = 1;
 
         // Initialize
         this.updateDisplay();
@@ -55,6 +60,7 @@ export class GameEngine {
         this.gameOver = false;
         this.startTime = Date.now();
         this.elapsedTime = 0;
+        this.previousLevel = 1;
 
         // Reset all systems
         this.dino.reset();
@@ -66,6 +72,9 @@ export class GameEngine {
         this.startScreen.hide();
         this.gameOverScreen.hide();
 
+        // Start background music
+        this.soundManager.startBackgroundMusic();
+
         // Start game loop
         this.gameLoop();
     }
@@ -76,6 +85,10 @@ export class GameEngine {
     end() {
         this.gameOver = true;
         this.gameStarted = false;
+
+        // Stop music and play game over sound
+        this.soundManager.stopBackgroundMusic();
+        this.soundManager.playGameOver();
 
         this.gameOverScreen.show(
             this.scoreSystem.getScore(),
@@ -96,7 +109,12 @@ export class GameEngine {
         } else if (this.gameOver) {
             this.start();
         } else {
+            const wasJumping = this.dino.isJumping;
             this.dino.jump();
+            // Play sound only if jump was successful
+            if (!wasJumping && this.dino.isJumping) {
+                this.soundManager.playJump();
+            }
         }
     }
 
@@ -133,6 +151,15 @@ export class GameEngine {
         for (let i = 0; i < obstaclesPassed; i++) {
             this.scoreSystem.addObstaclePoints();
             this.scoreSystem.updateHighScore();
+            // Play score sound
+            this.soundManager.playScore();
+        }
+
+        // Check for level up
+        const currentLevel = this.levelSystem.getLevel();
+        if (currentLevel > this.previousLevel) {
+            this.previousLevel = currentLevel;
+            this.soundManager.playLevelUp();
         }
 
         // Increment score
