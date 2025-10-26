@@ -8,9 +8,31 @@
 </head>
 <body>
     <div class="game-container">
-        <div class="score-container">
-            <div id="score">Score: 0</div>
-            <div id="high-score">High Score: 0</div>
+        <div class="header-container">
+            <div class="stats-row-top">
+                <div class="stat-box" id="score-box">
+                    <div class="stat-label">SCORE</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-box highlight" id="high-score-box">
+                    <div class="stat-label">HIGH SCORE</div>
+                    <div class="stat-value" id="high-score">0</div>
+                </div>
+            </div>
+            <div class="stats-row-bottom">
+                <div class="stat-box-small">
+                    <div class="stat-label-small">LEVEL</div>
+                    <div class="stat-value-small" id="level">1</div>
+                </div>
+                <div class="stat-box-small">
+                    <div class="stat-label-small">SPEED</div>
+                    <div class="stat-value-small" id="speed">5.0x</div>
+                </div>
+                <div class="stat-box-small">
+                    <div class="stat-label-small">TIME</div>
+                    <div class="stat-value-small" id="time">0:00</div>
+                </div>
+            </div>
         </div>
         <canvas id="gameCanvas" width="800" height="200"></canvas>
         <div id="game-over" class="game-over hidden">
