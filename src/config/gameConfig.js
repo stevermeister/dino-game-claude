@@ -40,8 +40,13 @@ export const GAME_CONFIG = {
 export const COLORS = {
     DINO: '#2ecc71',
     DINO_DARK: '#27ae60',
+    DINO_LIGHT: '#48e68a',
+    DINO_BELLY: '#a8e6c1',
+    DINO_HIGHLIGHT: '#5ef59f',
+    DINO_SHADOW: '#1e8449',
     DINO_EYE_WHITE: 'white',
     DINO_EYE_BLACK: 'black',
+    DINO_EYE_HIGHLIGHT: 'rgba(255, 255, 255, 0.6)',
     OBSTACLE: '#e74c3c',
     GROUND: '#333',
     GROUND_PATTERN: '#555',
